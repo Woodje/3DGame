@@ -18,12 +18,15 @@ namespace WallE
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        List<CModel> models = new List<CModel>();
+        List<CModel> models;
         Camera camera;
-        InputManager Input = new InputManager();
+        InputManager Input;
         BoneModel boner;
-        Tile tile, tile2;
-        float test = 0.1f;
+        List<Tile> tiles;
+
+        float testarm = 0.1f;
+        int tileStart = -4;
+        int test = 1;
 
         public Game1()
         {
@@ -41,7 +44,9 @@ namespace WallE
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            models = new List<CModel>();
+            tiles = new List<Tile>();
+            Input = new InputManager();
 
             base.Initialize();
         }
@@ -64,8 +69,17 @@ namespace WallE
 
             boner = new BoneModel(Content.Load<Model>("freak3"));
 
-            tile = new Tile(Content.Load<Texture2D>("brick_texture_map"), graphics, new Vector3(-1200,0,1000), new Vector3(400,200,10));
-            tile2 = new Tile(Content.Load<Texture2D>("brick_texture_map"), graphics, new Vector3(-800, 0, 1000), new Vector3(400, 200, 10));
+            for (int i = tileStart; i <= 2; i++)
+            {
+                tiles.Add(new Tile(Content.Load<Texture2D>("brick_texture_map"), graphics, new Vector3(400 * i, 0, 1000), new Vector3(400, 200, 10)));
+                tileStart = 400 * i + 400;
+            }
+
+            for (int i = 1; i < 6; i++)
+            {
+                tiles.Add(new Tile(Content.Load<Texture2D>("brick_texture_map"), graphics, new Vector3(tileStart, 0, 1000 + (-400 * i)), new Vector3(10, 200, 400)));
+            }
+            
         }
 
         /// <summary>
@@ -93,13 +107,13 @@ namespace WallE
 
             if (Keyboard.GetState().IsKeyDown(Keys.K))
             {
-                test += 0.01f;
-                boner.Update(gameTime, test);
+                testarm += 0.01f;
+                boner.Update(gameTime, testarm);
             }
             if (Keyboard.GetState().IsKeyDown(Keys.J))
             {
-                test -= 0.01f;
-                boner.Update(gameTime, test);
+                testarm -= 0.01f;
+                boner.Update(gameTime, testarm);
             }
 
             base.Update(gameTime);
@@ -117,10 +131,11 @@ namespace WallE
                 if (camera.BoundingVolumeIsInView(model.BoundingSphere))
                     model.Draw(camera.View, camera.Projection);
 
+            foreach (Tile tile in tiles)
+                tile.Draw(graphics, camera);
+
             boner.Draw(camera);
-            
-            tile.Draw(graphics, camera);
-            tile2.Draw(graphics, camera);
+
             base.Draw(gameTime);
         }
     }

@@ -15,11 +15,11 @@ namespace WallE
         BasicEffect effect;
         Matrix world = Matrix.Identity;
         Texture2D texture;
-
+        
         public Tile(Texture2D texture2D, GraphicsDeviceManager graphicsDeviceManager, Vector3 position, Vector3 dimension)
         {
             texture = texture2D;
-
+            
             tile = new VertexPositionTexture[14];
             tile[0] = new VertexPositionTexture(new Vector3(position.X, position.Y, position.Z), new Vector2(0, 0));
             tile[1] = new VertexPositionTexture(new Vector3(position.X + dimension.X, position.Y, position.Z), new Vector2(1, 0));
