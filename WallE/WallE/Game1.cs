@@ -20,13 +20,13 @@ namespace WallE
         SpriteBatch spriteBatch;
         List<CModel> models;
         Camera camera;
+        MapManager map;
         InputManager Input;
         BoneModel boner;
-        List<Tile> tiles;
+        BoundingBox bB;
+        Tile tile;
 
         float testarm = 0.1f;
-        int tileStart = -4;
-        int test = 1;
 
         public Game1()
         {
@@ -44,9 +44,10 @@ namespace WallE
         /// </summary>
         protected override void Initialize()
         {
+            map = new MapManager();
             models = new List<CModel>();
-            tiles = new List<Tile>();
             Input = new InputManager();
+            bB = new BoundingBox();
 
             base.Initialize();
         }
@@ -67,19 +68,14 @@ namespace WallE
             camera = new ChaseCamera(new Vector3(0, 50, 300), new Vector3(0, 50, 0), Vector3.Zero, GraphicsDevice);
             ((ChaseCamera)camera).Move(models[0].Position, models[0].Rotation, new Vector3(0, 0, 0));
 
+            map.LoadContent(graphics, Content);
+
             boner = new BoneModel(Content.Load<Model>("freak3"));
 
-            for (int i = tileStart; i <= 2; i++)
-            {
-                tiles.Add(new Tile(Content.Load<Texture2D>("brick_texture_map"), graphics, new Vector3(400 * i, 0, 1000), new Vector3(400, 200, 10)));
-                tileStart = 400 * i + 400;
-            }
+            bB.Min = new Vector3(0, 0, 100);
+            bB.Max = new Vector3(100, 100, 200);
 
-            for (int i = 1; i < 6; i++)
-            {
-                tiles.Add(new Tile(Content.Load<Texture2D>("brick_texture_map"), graphics, new Vector3(tileStart, 0, 1000 + (-400 * i)), new Vector3(10, 200, 400)));
-            }
-            
+            tile = new Tile(Content.Load<Texture2D>("CylinderSkin"), graphics, new Vector3(0, 0, 100), new Vector3(100, 100, 100));
         }
 
         /// <summary>
@@ -101,8 +97,8 @@ namespace WallE
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
-
-            Input.updateModel(gameTime, camera, models[0], graphics);
+            
+            Input.updateModel(gameTime, camera, models[0], graphics, map.bBList);
             Input.updateCamera(camera, models[0]);
 
             if (Keyboard.GetState().IsKeyDown(Keys.K))
@@ -131,10 +127,11 @@ namespace WallE
                 if (camera.BoundingVolumeIsInView(model.BoundingSphere))
                     model.Draw(camera.View, camera.Projection);
 
-            foreach (Tile tile in tiles)
-                tile.Draw(graphics, camera);
+            map.Draw(graphics, camera);
 
             boner.Draw(camera);
+
+            tile.Draw(graphics, camera);
 
             base.Draw(gameTime);
         }

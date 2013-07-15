@@ -24,7 +24,7 @@ namespace WallE
             get
             {
                 // No need for rotation, as this is a sphere
-                Matrix worldTransform = Matrix.CreateScale(Scale)
+                Matrix worldTransform = Matrix.CreateScale(Scale / 2)
                     * Matrix.CreateTranslation(Position);
 
                 BoundingSphere transformed = boundingSphere;

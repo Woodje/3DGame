@@ -10,7 +10,7 @@ namespace WallE
     public class InputManager
     {
         MouseState lastMouseState;
-        Vector3 cameraFreeRotation = new Vector3(0, 0, 0), cameraUpDownLook = new Vector3(0, 0, 0);
+        Vector3 cameraFreeRotation = new Vector3(0, 0, 0), cameraUpDownLook = new Vector3(0, 0, 0), prevPosition;
 
         float scrollDelta = 500f;
 
@@ -21,8 +21,10 @@ namespace WallE
             lastMouseState = Mouse.GetState();
         }
 
-        public void updateModel(GameTime gameTime, Camera camera, CModel model, GraphicsDeviceManager graphics)
+        public void updateModel(GameTime gameTime, Camera camera, CModel model, GraphicsDeviceManager graphics, List<BoundingBox> bB)
         {
+            prevPosition = model.Position;
+
             Vector3 rotChange = new Vector3(0, 0, 0);
             Vector3 freeRotation = new Vector3(0, 0, 0);
             Vector3 upDownLook = new Vector3(0, 0, 0);
@@ -68,6 +70,8 @@ namespace WallE
                 model.Model.Bones[2].Transform *= Matrix.CreateRotationX(-0.2f);
                 model.Model.Bones[3].Transform = Matrix.CreateTranslation(new Vector3(0, 5.235f, -5.235f)) * Matrix.CreateRotationY(MathHelper.ToRadians(90));
                 model.Position += Vector3.Transform(Vector3.Forward, rotation) * (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.2f;
+                if (model.BoundingSphere.Intersects(bB[0]))
+                    model.Position = prevPosition;
             }
             
             if (Keyboard.GetState().IsKeyDown(Keys.S))
@@ -77,6 +81,8 @@ namespace WallE
                 model.Model.Bones[2].Transform *= Matrix.CreateRotationX(0.2f);
                 model.Model.Bones[3].Transform = Matrix.CreateTranslation(new Vector3(0, 5.235f, -5.235f)) * Matrix.CreateRotationY(MathHelper.ToRadians(90));
                 model.Position += Vector3.Transform(Vector3.Backward, rotation) * (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.2f;
+                if (model.BoundingSphere.Intersects(bB[0]))
+                    model.Position = prevPosition;
             }
 
             // Move model left and right
@@ -101,6 +107,8 @@ namespace WallE
                 }
 
                 model.Position += Vector3.Transform(Vector3.Right, rotation) * (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.2f;
+                if (model.BoundingSphere.Intersects(bB[0]))
+                    model.Position -= Vector3.Transform(Vector3.Right, rotation) * (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.2f;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.A) && Mouse.GetState().RightButton == ButtonState.Pressed)
             {
@@ -123,6 +131,8 @@ namespace WallE
                 }
 
                 model.Position += Vector3.Transform(Vector3.Left, rotation) * (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.2f;
+                if (model.BoundingSphere.Intersects(bB[0]))
+                    model.Position -= Vector3.Transform(Vector3.Left, rotation) * (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.2f;
             }
 
             // Set mouse position and do initial get state
