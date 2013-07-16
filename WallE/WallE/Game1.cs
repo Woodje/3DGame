@@ -46,7 +46,7 @@ namespace WallE
         {
             map = new MapManager();
             models = new List<CModel>();
-            Input = new InputManager();
+            Input = new InputManager(graphics, map.bBList);
             bB = new BoundingBox();
 
             base.Initialize();
@@ -98,7 +98,7 @@ namespace WallE
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
             
-            Input.updateModel(gameTime, camera, models[0], graphics, map.bBList);
+            Input.updateModel(gameTime, camera, models[0], graphics);
             Input.updateCamera(camera, models[0]);
 
             if (Keyboard.GetState().IsKeyDown(Keys.K))

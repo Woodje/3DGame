@@ -11,17 +11,20 @@ namespace WallE
     {
         MouseState lastMouseState;
         Vector3 cameraFreeRotation = new Vector3(0, 0, 0), cameraUpDownLook = new Vector3(0, 0, 0), prevPosition;
+        Collision collision;
 
         float scrollDelta = 500f;
 
-        public void Initialize(GraphicsDeviceManager graphics)
+        public InputManager(GraphicsDeviceManager graphics, List<BoundingBox> bB)
         {
             // Set mouse position and do initial get state
             Mouse.SetPosition(graphics.GraphicsDevice.Viewport.Width / 2, graphics.GraphicsDevice.Viewport.Height / 2);
             lastMouseState = Mouse.GetState();
+
+            collision = new Collision(bB);
         }
 
-        public void updateModel(GameTime gameTime, Camera camera, CModel model, GraphicsDeviceManager graphics, List<BoundingBox> bB)
+        public void updateModel(GameTime gameTime, Camera camera, CModel model, GraphicsDeviceManager graphics)
         {
             prevPosition = model.Position;
 
@@ -70,7 +73,7 @@ namespace WallE
                 model.Model.Bones[2].Transform *= Matrix.CreateRotationX(-0.2f);
                 model.Model.Bones[3].Transform = Matrix.CreateTranslation(new Vector3(0, 5.235f, -5.235f)) * Matrix.CreateRotationY(MathHelper.ToRadians(90));
                 model.Position += Vector3.Transform(Vector3.Forward, rotation) * (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.2f;
-                if (model.BoundingSphere.Intersects(bB[0]))
+                if (collision.UpdateCollision(model))
                     model.Position = prevPosition;
             }
             
@@ -81,7 +84,7 @@ namespace WallE
                 model.Model.Bones[2].Transform *= Matrix.CreateRotationX(0.2f);
                 model.Model.Bones[3].Transform = Matrix.CreateTranslation(new Vector3(0, 5.235f, -5.235f)) * Matrix.CreateRotationY(MathHelper.ToRadians(90));
                 model.Position += Vector3.Transform(Vector3.Backward, rotation) * (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.2f;
-                if (model.BoundingSphere.Intersects(bB[0]))
+                if (collision.UpdateCollision(model))
                     model.Position = prevPosition;
             }
 
@@ -107,7 +110,7 @@ namespace WallE
                 }
 
                 model.Position += Vector3.Transform(Vector3.Right, rotation) * (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.2f;
-                if (model.BoundingSphere.Intersects(bB[0]))
+                if (collision.UpdateCollision(model))
                     model.Position -= Vector3.Transform(Vector3.Right, rotation) * (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.2f;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.A) && Mouse.GetState().RightButton == ButtonState.Pressed)
@@ -131,7 +134,7 @@ namespace WallE
                 }
 
                 model.Position += Vector3.Transform(Vector3.Left, rotation) * (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.2f;
-                if (model.BoundingSphere.Intersects(bB[0]))
+                if (collision.UpdateCollision(model))
                     model.Position -= Vector3.Transform(Vector3.Left, rotation) * (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.2f;
             }
 
